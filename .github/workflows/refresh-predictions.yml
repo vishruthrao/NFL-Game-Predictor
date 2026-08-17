@@ -1,0 +1,52 @@
+name: Refresh weekly predictions
+
+on:
+  schedule:
+    - cron: '43 7 * * 3'
+      timezone: 'America/New_York'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nfl-prediction-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh-predictions:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Refresh schedule and final scores
+        run: python src/load_data.py
+
+      - name: Generate next week's predictions
+        run: python -m src.predict
+
+      - name: Commit updated schedule and predictions
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/schedule_2026.csv data/predictions_2026.csv
+
+          if git diff --cached --quiet; then
+            echo "No prediction changes to commit."
+          else
+            git commit -m "Auto-refresh weekly NFL predictions"
+            git push
+          fi
