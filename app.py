@@ -281,17 +281,20 @@ st.markdown(
         .team-name {
             font-size: 1.15rem;
             font-weight: 700;
+            text-align: center;
         }
 
         .team-abbr {
             color: #A7ADB5;
             font-size: 0.86rem;
+            text-align: center;
         }
 
         .probability {
             font-size: 1.70rem;
             font-weight: 800;
             margin-top: 0.25rem;
+            text-align: center;
         }
 
         .versus {
@@ -329,16 +332,17 @@ st.markdown(
         }
 
         .team-badge {
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
+            width: fit-content;
             min-width: 3.15rem;
             padding: 0.24rem 0.60rem;
             border-radius: 999px;
             font-size: 0.78rem;
             font-weight: 800;
             letter-spacing: 0.05em;
-            margin-bottom: 0.45rem;
+            margin: 0 auto 0.45rem auto;
             box-shadow: 0 4px 14px rgba(0,0,0,0.12);
         }
 
@@ -347,6 +351,7 @@ st.markdown(
             height: 86px;
             display: flex;
             align-items: center;
+            justify-content: center;
             margin-bottom: 0.35rem;
         }
 
