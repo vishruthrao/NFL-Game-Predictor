@@ -216,6 +216,44 @@ st.markdown(
             font-weight: 600;
         }
 
+        .record-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.65rem;
+            margin: 0.55rem 0 0.90rem 0;
+        }
+
+        .record-pill {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 0.45rem;
+            background: #1C2025;
+            border: 1px solid #343A40;
+            border-radius: 12px;
+            padding: 0.55rem 0.80rem;
+        }
+
+        .record-label {
+            color: #A7ADB5;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .record-value {
+            color: #F5F7FA;
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
+
+        .final-score {
+            color: #F5F7FA;
+            font-size: 1rem;
+            font-weight: 800;
+            margin: -0.30rem 0 0.90rem 0;
+        }
+
         .game-card {
             background: #1C2025;
             border: 1px solid #343A40;
@@ -801,6 +839,135 @@ def advantage(
     )
 
 
+def build_prediction_results(
+    schedule_df,
+    predictions_df,
+):
+    # Match saved predictions to completed games.
+
+    empty_results = pd.DataFrame(
+        columns=[
+            "game_id",
+            "week",
+            "predicted_winner",
+            "actual_winner",
+            "correct",
+        ]
+    )
+
+    if (
+        predictions_df is None
+        or predictions_df.empty
+    ):
+        return empty_results
+
+    required_prediction_columns = {
+        "game_id",
+        "predicted_winner",
+    }
+
+    required_schedule_columns = {
+        "game_id",
+        "week",
+        "away_team",
+        "home_team",
+        "away_score",
+        "home_score",
+    }
+
+    if (
+        not required_prediction_columns.issubset(
+            predictions_df.columns
+        )
+        or not required_schedule_columns.issubset(
+            schedule_df.columns
+        )
+    ):
+        return empty_results
+
+    saved_predictions = (
+        predictions_df[
+            [
+                "game_id",
+                "predicted_winner",
+            ]
+        ]
+        .drop_duplicates(
+            subset="game_id",
+            keep="last",
+        )
+        .copy()
+    )
+
+    results = saved_predictions.merge(
+        schedule_df[
+            [
+                "game_id",
+                "week",
+                "away_team",
+                "home_team",
+                "away_score",
+                "home_score",
+            ]
+        ],
+        on="game_id",
+        how="left",
+    )
+
+    results["week"] = pd.to_numeric(
+        results["week"],
+        errors="coerce",
+    )
+
+    results["away_score"] = pd.to_numeric(
+        results["away_score"],
+        errors="coerce",
+    )
+
+    results["home_score"] = pd.to_numeric(
+        results["home_score"],
+        errors="coerce",
+    )
+
+    completed = (
+        results["away_score"].notna()
+        & results["home_score"].notna()
+    )
+
+    non_ties = (
+        results["away_score"]
+        != results["home_score"]
+    )
+
+    results = results[
+        completed & non_ties
+    ].copy()
+
+    results["actual_winner"] = (
+        results["away_team"]
+    )
+
+    home_wins = (
+        results["home_score"]
+        > results["away_score"]
+    )
+
+    results.loc[
+        home_wins,
+        "actual_winner",
+    ] = results.loc[
+        home_wins,
+        "home_team",
+    ]
+
+    results["correct"] = (
+        results["predicted_winner"]
+        == results["actual_winner"]
+    )
+
+    return results
+
+
 # ---------------------------------------------------------
 # HEADER
 # ---------------------------------------------------------
@@ -932,6 +1099,60 @@ if next_clicked:
 
 
 selected_week = st.session_state.selected_week
+
+
+# ---------------------------------------------------------
+# WEEK + SEASON RECORD
+# ---------------------------------------------------------
+
+prediction_results = build_prediction_results(
+    schedule,
+    predictions,
+)
+
+week_results = prediction_results[
+    prediction_results["week"] == selected_week
+].copy()
+
+week_correct = int(
+    week_results["correct"].sum()
+)
+
+week_total = int(
+    len(week_results)
+)
+
+season_correct = int(
+    prediction_results["correct"].sum()
+)
+
+season_total = int(
+    len(prediction_results)
+)
+
+st.markdown(
+    f"""
+    <div class="record-row">
+        <div class="record-pill">
+            <span class="record-label">
+                Week
+            </span>
+            <span class="record-value">
+                {week_correct}/{week_total}
+            </span>
+        </div>
+        <div class="record-pill">
+            <span class="record-label">
+                Season
+            </span>
+            <span class="record-value">
+                {season_correct}/{season_total}
+            </span>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 # ---------------------------------------------------------
@@ -1127,6 +1348,35 @@ for _, game in week_schedule.iterrows():
         """,
         unsafe_allow_html=True,
     )
+
+    away_score = pd.to_numeric(
+        game.get(
+            "away_score"
+        ),
+        errors="coerce",
+    )
+
+    home_score = pd.to_numeric(
+        game.get(
+            "home_score"
+        ),
+        errors="coerce",
+    )
+
+    if (
+        pd.notna(away_score)
+        and pd.notna(home_score)
+    ):
+
+        st.markdown(
+            f"""
+            <div class="final-score">
+                FINAL: {away} {int(away_score)}
+                • {home} {int(home_score)}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
     away_col, middle_col, home_col = st.columns(
         [1, 0.30, 1]

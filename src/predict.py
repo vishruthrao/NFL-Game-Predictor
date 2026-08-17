@@ -778,6 +778,88 @@ def print_predictions(
 
 
 # ---------------------------------------------------------
+# PRESERVE SEASON PREDICTION HISTORY
+# ---------------------------------------------------------
+
+def merge_prediction_history(
+    new_predictions,
+):
+    # Keep earlier game predictions while replacing games generated now.
+
+    if not OUTPUT_FILE.exists():
+        return new_predictions.copy()
+
+    try:
+        existing_predictions = pd.read_csv(
+            OUTPUT_FILE
+        )
+    except pd.errors.EmptyDataError:
+        return new_predictions.copy()
+
+    if (
+        existing_predictions.empty
+        or "game_id" not in existing_predictions.columns
+    ):
+        return new_predictions.copy()
+
+    if (
+        new_predictions is None
+        or new_predictions.empty
+    ):
+        return existing_predictions
+
+    new_game_ids = set(
+        new_predictions[
+            "game_id"
+        ].astype(str)
+    )
+
+    historical_predictions = (
+        existing_predictions[
+            ~existing_predictions[
+                "game_id"
+            ].astype(str).isin(
+                new_game_ids
+            )
+        ]
+        .copy()
+    )
+
+    combined = pd.concat(
+        [
+            historical_predictions,
+            new_predictions,
+        ],
+        ignore_index=True,
+        sort=False,
+    )
+
+    combined = combined.drop_duplicates(
+        subset="game_id",
+        keep="last",
+    )
+
+    sort_columns = [
+        column
+        for column in [
+            "week",
+            "gameday",
+            "gametime",
+        ]
+        if column in combined.columns
+    ]
+
+    if sort_columns:
+        combined = combined.sort_values(
+            sort_columns
+        ).reset_index(
+            drop=True
+        )
+
+    return combined
+
+
+# ---------------------------------------------------------
 # MAIN
 # ---------------------------------------------------------
 
@@ -860,13 +942,24 @@ if __name__ == "__main__":
         exist_ok=True
     )
 
+    predictions = merge_prediction_history(
+        predictions
+    )
+
     predictions.to_csv(
         OUTPUT_FILE,
         index=False,
     )
 
+    current_week_predictions = predictions[
+        pd.to_numeric(
+            predictions["week"],
+            errors="coerce",
+        ) == prediction_week
+    ].copy()
+
     print_predictions(
-        predictions,
+        current_week_predictions,
         prediction_week,
     )
 
