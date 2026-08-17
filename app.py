@@ -1003,24 +1003,16 @@ weeks = sorted(
 )
 
 
-if predictions is not None and not predictions.empty:
+upcoming = schedule[
+    schedule["home_score"].isna()
+    | schedule["away_score"].isna()
+]
 
-    prediction_week = int(
-        predictions["week"].iloc[0]
-    )
-
-else:
-
-    upcoming = schedule[
-        schedule["home_score"].isna()
-        | schedule["away_score"].isna()
-    ]
-
-    prediction_week = (
-        int(upcoming["week"].min())
-        if not upcoming.empty
-        else int(schedule["week"].max())
-    )
+prediction_week = (
+    int(upcoming["week"].min())
+    if not upcoming.empty
+    else int(schedule["week"].max())
+)
 
 
 if (
@@ -1159,7 +1151,10 @@ st.markdown(
 # PRESEASON / DATA NOTE
 # ---------------------------------------------------------
 
-if selected_week == prediction_week:
+if (
+    selected_week == 1
+    and prediction_week == 1
+):
 
     st.info(
         "Week 1 model note: no 2026 regular-season "
