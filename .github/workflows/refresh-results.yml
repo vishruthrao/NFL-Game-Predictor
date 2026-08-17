@@ -35,11 +35,15 @@ jobs:
       - name: Refresh schedule and final scores
         run: python src/load_data.py
 
+      - name: Record refresh time
+        run: |
+          python -c "from datetime import datetime, timezone; from pathlib import Path; Path('data/last_updated.txt').write_text(datetime.now(timezone.utc).isoformat(), encoding='utf-8')"
+
       - name: Commit updated results
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/schedule_2026.csv
+          git add data/schedule_2026.csv data/last_updated.txt
 
           if git diff --cached --quiet; then
             echo "No schedule or score changes to commit."

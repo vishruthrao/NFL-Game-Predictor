@@ -111,6 +111,10 @@ CALIBRATION_FILE = Path(
     "data/favorite_calibration.csv"
 )
 
+LAST_UPDATED_FILE = Path(
+    "data/last_updated.txt"
+)
+
 
 TEAM_GRAPHICS_URL = (
     "https://github.com/nflverse/nflverse-data/"
@@ -156,6 +160,12 @@ st.markdown(
 
         .site-subtitle {
             color: #A7ADB5;
+            margin-bottom: 0.20rem;
+        }
+
+        .last-updated {
+            color: #7F8790;
+            font-size: 0.82rem;
             margin-bottom: 1.4rem;
         }
 
@@ -549,6 +559,27 @@ def load_calibration():
     )
 
 
+@st.cache_data
+def load_last_updated():
+
+    if not LAST_UPDATED_FILE.exists():
+        return None
+
+    try:
+        timestamp = pd.to_datetime(
+            LAST_UPDATED_FILE.read_text(
+                encoding="utf-8"
+            ).strip(),
+            utc=True,
+        )
+    except Exception:
+        return None
+
+    return timestamp.tz_convert(
+        "America/New_York"
+    )
+
+
 
 @st.cache_data(ttl=86400)
 def load_team_graphics():
@@ -611,6 +642,7 @@ schedule = load_schedule()
 predictions = load_predictions()
 model_bundle = load_model_bundle()
 calibration = load_calibration()
+last_updated = load_last_updated()
 team_graphics = load_team_graphics()
 
 
@@ -988,6 +1020,34 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
+if last_updated is not None:
+
+    updated_date = (
+        last_updated.strftime(
+            "%B %d, %Y"
+        ).replace(
+            " 0",
+            " ",
+        )
+    )
+
+    updated_time = (
+        last_updated.strftime(
+            "%I:%M %p"
+        ).lstrip(
+            "0"
+        )
+    )
+
+    st.markdown(
+        f"""
+        <div class="last-updated">
+            Last updated: {updated_date} at {updated_time} ET
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 # ---------------------------------------------------------

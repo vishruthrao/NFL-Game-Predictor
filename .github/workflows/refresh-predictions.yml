@@ -38,11 +38,15 @@ jobs:
       - name: Generate next week's predictions
         run: python -m src.predict
 
+      - name: Record refresh time
+        run: |
+          python -c "from datetime import datetime, timezone; from pathlib import Path; Path('data/last_updated.txt').write_text(datetime.now(timezone.utc).isoformat(), encoding='utf-8')"
+
       - name: Commit updated schedule and predictions
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/schedule_2026.csv data/predictions_2026.csv
+          git add data/schedule_2026.csv data/predictions_2026.csv data/last_updated.txt
 
           if git diff --cached --quiet; then
             echo "No prediction changes to commit."
