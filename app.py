@@ -259,9 +259,9 @@ st.markdown(
 
         .final-score {
             color: #F5F7FA;
-            font-size: 1rem;
+            font-size: 1.05rem;
             font-weight: 800;
-            margin: -0.30rem 0 0.90rem 0;
+            white-space: nowrap;
         }
 
         .game-card {
@@ -1418,19 +1418,18 @@ for _, game in week_schedule.iterrows():
         errors="coerce",
     )
 
+    final_score_html = ""
+
     if (
         pd.notna(away_score)
         and pd.notna(home_score)
     ):
 
-        st.markdown(
-            f"""
-            <div class="final-score">
-                FINAL: {away} {int(away_score)}
-                • {home} {int(home_score)}
-            </div>
-            """,
-            unsafe_allow_html=True,
+        final_score_html = (
+            '<div class="final-score">'
+            f'FINAL: {away} {int(away_score)} '
+            f'• {home} {int(home_score)}'
+            '</div>'
         )
 
     away_col, middle_col, home_col = st.columns(
@@ -1591,28 +1590,49 @@ for _, game in week_schedule.iterrows():
                     "
                 ></div>
             </div>
-
-            <div class="winner-label">
-                Predicted winner
-            </div>
-
-            <div
-                class="winner-chip"
-                style="
-                    background: {winner_color};
-                    color: {winner_text_color};
-                "
-            >
-                {winner_logo_html}
-                {team_name(winner_abbr)} • {winner_probability:.0%}
-            </div>
-
-            <div class="prediction-confidence">
-                Model win probability
-            </div>
             """,
             unsafe_allow_html=True,
         )
+
+        winner_col, final_col = st.columns(
+            [2.4, 1.0],
+            vertical_alignment="center",
+        )
+
+        with winner_col:
+
+            st.markdown(
+                f"""
+                <div class="winner-label">
+                    Predicted winner
+                </div>
+
+                <div
+                    class="winner-chip"
+                    style="
+                        background: {winner_color};
+                        color: {winner_text_color};
+                    "
+                >
+                    {winner_logo_html}
+                    {team_name(winner_abbr)} • {winner_probability:.0%}
+                </div>
+
+                <div class="prediction-confidence">
+                    Model win probability
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        with final_col:
+
+            if final_score_html:
+
+                st.markdown(
+                    final_score_html,
+                    unsafe_allow_html=True,
+                )
 
         # -------------------------------------------------
         # ADVANCED ANALYTICS
@@ -1842,6 +1862,13 @@ for _, game in week_schedule.iterrows():
             )
 
     else:
+
+        if final_score_html:
+
+            st.markdown(
+                final_score_html,
+                unsafe_allow_html=True,
+            )
 
         st.caption(
             "No model probability has been generated "
