@@ -1,6 +1,6 @@
 game_id,season,week,gameday,weekday,gametime,away_team,home_team,away_score,home_score,result
 2026_01_NE_SEA,2026,1,2026-09-09,Wednesday,20:20,NE,SEA,10.0,13.0,3.0
-2026_01_SF_LA,2026,1,2026-09-10,Thursday,20:35,SF,LA,,,
+2026_01_SF_LA,2026,1,2026-09-10,Thursday,20:35,SF,LA,27.0,7.0,-20.0
 2026_01_CHI_CAR,2026,1,2026-09-13,Sunday,13:00,CHI,CAR,,,
 2026_01_TB_CIN,2026,1,2026-09-13,Sunday,13:00,TB,CIN,,,
 2026_01_NO_DET,2026,1,2026-09-13,Sunday,13:00,NO,DET,,,
