@@ -65,6 +65,7 @@ game_id,season,week,gameday,weekday,gametime,away_team,home_team,away_score,home
 2026_04_ATL_NO,2026,4,2026-10-05,Monday,20:15,ATL,NO,45.0,24.0,-21.0
 2026_05_TB_DAL,2026,5,2026-10-08,Thursday,20:15,TB,DAL,,,
 2026_05_PHI_JAX,2026,5,2026-10-11,Sunday,09:30,PHI,JAX,,,
+2026_05_CHI_GB,2026,5,2026-10-11,Sunday,13:00,CHI,GB,,,
 2026_05_CIN_MIA,2026,5,2026-10-11,Sunday,13:00,CIN,MIA,,,
 2026_05_LV_NE,2026,5,2026-10-11,Sunday,13:00,LV,NE,,,
 2026_05_MIN_NO,2026,5,2026-10-11,Sunday,13:00,MIN,NO,,,
@@ -72,7 +73,6 @@ game_id,season,week,gameday,weekday,gametime,away_team,home_team,away_score,home
 2026_05_IND_PIT,2026,5,2026-10-11,Sunday,13:00,IND,PIT,,,
 2026_05_HOU_TEN,2026,5,2026-10-11,Sunday,13:00,HOU,TEN,,,
 2026_05_NYG_WAS,2026,5,2026-10-11,Sunday,13:00,NYG,WAS,,,
-2026_05_CHI_GB,2026,5,2026-10-11,Sunday,13:00,CHI,GB,,,
 2026_05_DEN_LAC,2026,5,2026-10-11,Sunday,16:05,DEN,LAC,,,
 2026_05_DET_ARI,2026,5,2026-10-11,Sunday,16:25,DET,ARI,,,
 2026_05_SF_SEA,2026,5,2026-10-11,Sunday,16:25,SF,SEA,,,
